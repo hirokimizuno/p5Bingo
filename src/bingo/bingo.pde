@@ -1,51 +1,98 @@
+static final boolean DEBUG = true;
 
 class Bingo
 {
-  Bingo()
+  Bingo(String filename)
   {
-    m_checkList = new boolean [76];
-    m_extList   = new ArrayList<Integer>(75);
+    m_max       = 75;
+    m_checkList = new boolean [m_max];
+    for (int i = 0; i < m_max; i++) {
+      m_checkList[i] = false;
+    }
+    m_extList   = new ArrayList<Integer>(m_max);
+
+    // Restore from Backup File
+    if ( !DEBUG )
+    {
+      Load(filename);
+      m_output = createWriter(filename);
+      for (int i = 0; i < m_extList.size(); i++) {
+        m_output.println(m_extList.get(i));
+      }
+      m_output.flush();
+    }
+  }
+
+  void Load(String filename)
+  {
+    String[] lines = loadStrings(filename);
+
+    if (lines == null ) {
+      return;
+    }
+
+    for (int i = 0; i < lines.length; i++) {
+      int number = parseInt(lines[i].replaceAll("[^0-9]", ""));
+      if (number > 0 && number <= m_max) {
+        m_extList.add(number);
+        m_checkList[number-1] = true;
+      }
+    }
   }
 
   int AddNewNumber()
   {
-    int ri = -1;
+    if (m_extList.size() >= m_max)
+    {
+      return -1;
+    }
+
+    int newNumber = -1;
     while (true)
     {
-      float rf = random(0, 75);
-      ri = int(rf);
+      newNumber = int(random(1, m_max) + 0.5);
 
-      if ( m_checkList[ri] )
+      if ( m_checkList[newNumber-1] )
       {
-        ri = -1;
+        newNumber = -1;
         continue;
       }
 
-      m_checkList[ri] = true;
-      m_extList.add(ri);
+      m_checkList[newNumber-1] = true;
+      m_extList.add(newNumber);
       break;
     }
 
-    return ri;
+    // Write to Backup File
+    if ( !DEBUG )
+    {
+      m_output.println(newNumber);
+      m_output.flush();
+    }
+
+    return newNumber;
   }
 
   int GetCurrentNumber()
   {
     return m_extList.get(m_extList.size()-1);
   }
-  
+
   int GetCount()
   {
     return m_extList.size();
   }
-  
+
   int GetNumber(int i)
   {
     return m_extList.get(i);
   }
 
+  int                m_max;
   boolean[]          m_checkList;
   ArrayList<Integer> m_extList;
+
+  PrintWriter        m_output;
 };
 
 
@@ -56,67 +103,65 @@ class MainView
     m_bingo = bingo;
     m_font  = f;
     m_mode  = 1;
-    
+
     m_width  = width;
-    m_height = height;
-    m_xpos   = m_width  / 2;
-    m_ypos   = (m_height / 2) - 130;
+    m_height = height - (height / 10);
+    m_xpos   = (m_width  / 2);
+    m_ypos   = (m_height / 2);
   }
-  
+
   void DrawNumber(Integer number)
   {
     textFont(m_font);
     textAlign(CENTER, CENTER);
-    textSize(m_height / 1.5);
+    textSize(m_height);
     String str = number.toString();
-    
+
     fill(255);
     text(str, m_xpos, m_ypos);
   }
 
   void Draw()
   {
-    if( m_mode == 0 )
+    if ( m_mode == 0 )
     {
       return;
     }
-    
-    if( m_mode == 1 )
+
+    if ( m_mode == 1 )
     {
       DrawNumber(int(random(0, 75)));
     }
-    
-    if( m_mode == 2 )
+
+    if ( m_mode == 2 )
     {
       DrawNumber(bingo.GetCurrentNumber());
     }
   }
-  
+
   void SetMode(int mode)
   {
-    if( mode < 0 ) return;    
-    if( mode > 2 ) return;
-    
+    if ( mode < 0 ) return;    
+    if ( mode > 2 ) return;
+
     m_mode = mode;
   }
-  
+
   int GetMode()
   {
     return m_mode;
   }
-  
+
   int m_mode;
-  
+
   int m_width;
   int m_height;
   int m_xpos;
   int m_ypos;
-  
+
   PFont m_font;
   Bingo m_bingo;
 };
-
-
 
 class ListView
 {
@@ -124,42 +169,44 @@ class ListView
   {
     m_font  = f;
     m_bingo = bingo;
-    
+
     m_width  = width;
     m_height = height;
-    
-    m_texSize = 80;
+
+    m_textSize    = m_height / 15;
+    m_numberWidth = m_textSize * 2;
   }
 
   void DrawNumber(Integer number, int i, int size)
   {
     textFont(m_font);
-    textAlign(CENTER, CENTER);
-    textSize(m_texSize);
+    textAlign(CENTER, DOWN);
+    textSize(m_textSize);
     String str = number.toString();
     fill(255);
     
-    int offset = 80;
-    
-    if( size > (m_width / 100) )
+    int offset = m_numberWidth / 2;
+    if( size * m_numberWidth > m_width )
     {
-      offset -= ((size - (m_width / 100)) * 100);
+      offset = (m_width + m_numberWidth / 2) - (size) * (m_numberWidth);
     }
-    
-    text(str, (offset + i * 100), m_height - 100);
+
+    text(str, (offset + i * (m_numberWidth)), (m_height - 5));
   }
-  
+
   void Draw()
   {
-    for(int i = 0; i < m_bingo.GetCount(); i++){
+    for (int i = 0; i < m_bingo.GetCount(); i++) {
       DrawNumber(m_bingo.GetNumber(i), i, m_bingo.GetCount());
     }
   }  
-  
+
   int m_width;
   int m_height;
-  
-  int m_texSize;
+
+  int m_textSize;
+  int m_numberWidth;
+
   PFont m_font;
   Bingo m_bingo;
 };
@@ -174,14 +221,14 @@ ListView lview;
 
 void setup()
 {
-  size(displayWidth, displayHeight); 
-  //size(800, 600); 
+  //size(displayWidth, displayHeight); 
+  size(1200, 600); 
   background(0);
   frameRate(60);
-  
+
   PFont f = createFont("Impact", 120);
 
-  bingo = new Bingo();
+  bingo = new Bingo("data.log");
 
   mview = new MainView(bingo, f);
   lview = new ListView(bingo, f);
@@ -189,10 +236,10 @@ void setup()
 
 void keyPressed()
 {
-  if( key == ENTER )
+  if ( key == ENTER )
   {
     int mode = mview.GetMode();
-    if( mode != 1 )
+    if ( mode != 1 )
     {
       mview.SetMode(1);
       return;
@@ -209,7 +256,7 @@ void keyPressed()
 void draw()
 {
   background(0);
-  
+
   mview.Draw();
   lview.Draw();
 }
