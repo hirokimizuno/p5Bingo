@@ -105,7 +105,7 @@ class MainView
     m_mode  = 1;
 
     m_width  = width;
-    m_height = height - int((height * 0.3));
+    m_height = height - int((height * 0.1));
     m_xpos   = int((m_width  * 0.5));
     m_ypos   = int((m_height * 0.5));
   }
@@ -180,7 +180,7 @@ class ListView
   void DrawNumber(Integer number, int i, int size)
   {
     textFont(m_font);
-    textAlign(CENTER, DOWN);
+    textAlign(CENTER, CENTER);
     textSize(m_textSize);
     String str = number.toString();
     fill(255);
@@ -191,7 +191,7 @@ class ListView
       offset = (m_width + int(m_numberWidth * 0.5)) - (size * m_numberWidth);
     }
 
-    text(str, (offset + i * (m_numberWidth)), (m_height - 5));
+    text(str, (offset + i * (m_numberWidth)), (m_height - (m_textSize * 0.6)));
   }
 
   void Draw()
@@ -225,11 +225,11 @@ ListView lview;
 void setup()
 {
   //size(displayWidth, displayHeight); 
-  size(1200, 600); 
+  size(800, 600);
   background(0);
   frameRate(60);
 
-  PFont f = createFont("Impact", 120);
+  PFont f = createFont("Helvetica-Bold", 120);
 
   bingo = new Bingo("data.log");
 
