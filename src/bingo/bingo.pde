@@ -105,9 +105,9 @@ class MainView
     m_mode  = 1;
 
     m_width  = width;
-    m_height = height - (height / 10);
-    m_xpos   = (m_width  / 2);
-    m_ypos   = (m_height / 2);
+    m_height = height - int((height * 0.3));
+    m_xpos   = int((m_width  * 0.5));
+    m_ypos   = int((m_height * 0.5));
   }
 
   void DrawNumber(Integer number)
@@ -173,8 +173,8 @@ class ListView
     m_width  = width;
     m_height = height;
 
-    m_textSize    = m_height / 15;
-    m_numberWidth = m_textSize * 2;
+    m_textSize    = int(m_height * 0.1);
+    m_numberWidth = int(m_textSize * 1.5);
   }
 
   void DrawNumber(Integer number, int i, int size)
@@ -185,10 +185,10 @@ class ListView
     String str = number.toString();
     fill(255);
     
-    int offset = m_numberWidth / 2;
+    int offset = int(m_numberWidth * 0.5);
     if( size * m_numberWidth > m_width )
     {
-      offset = (m_width + m_numberWidth / 2) - (size) * (m_numberWidth);
+      offset = (m_width + int(m_numberWidth * 0.5)) - (size * m_numberWidth);
     }
 
     text(str, (offset + i * (m_numberWidth)), (m_height - 5));
@@ -196,6 +196,9 @@ class ListView
 
   void Draw()
   {
+    stroke(255);
+    line(0, (m_height - int(m_textSize * 1.2)), m_width, (m_height - int(m_textSize * 1.2)));
+    
     for (int i = 0; i < m_bingo.GetCount(); i++) {
       DrawNumber(m_bingo.GetNumber(i), i, m_bingo.GetCount());
     }
