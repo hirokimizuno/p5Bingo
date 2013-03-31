@@ -1,4 +1,4 @@
-static final boolean DEBUG = true;
+static final boolean DEBUG = false;
 
 class Bingo
 {
@@ -116,8 +116,6 @@ class MainView
     textAlign(CENTER, CENTER);
     textSize(m_height);
     String str = number.toString();
-
-    fill(255);
     text(str, m_xpos, m_ypos);
   }
 
@@ -183,7 +181,6 @@ class ListView
     textAlign(CENTER, CENTER);
     textSize(m_textSize);
     String str = number.toString();
-    fill(255);
     
     int offset = int(m_numberWidth * 0.5);
     if( size * m_numberWidth > m_width )
@@ -196,7 +193,7 @@ class ListView
 
   void Draw()
   {
-    stroke(255);
+    //stroke(0);
     line(0, (m_height - int(m_textSize * 1.2)), m_width, (m_height - int(m_textSize * 1.2)));
     
     for (int i = 0; i < m_bingo.GetCount(); i++) {
@@ -224,9 +221,8 @@ ListView lview;
 
 void setup()
 {
-  //size(displayWidth, displayHeight); 
-  size(800, 600);
-  background(0);
+  size(displayWidth, displayHeight); 
+  //size(800, 600);
   frameRate(60);
 
   PFont f = createFont("Helvetica-Bold", 120);
@@ -258,8 +254,9 @@ void keyPressed()
 
 void draw()
 {
-  background(0);
-
+  background(0, 0, 0);
+  fill(255, 255, 255);
+  stroke(128, 128, 128);
   mview.Draw();
   lview.Draw();
 }
